@@ -35,9 +35,9 @@ describe RuboCop::Cop::Style::BarePercentLiterals, :config do
     end
 
     it 'accepts heredoc' do
-      inspect_source(cop, ['func <<END',
+      inspect_source(cop, ['func <<HEREDOC',
                            'hi',
-                           'END'])
+                           'HEREDOC'])
       expect(cop.offenses).to be_empty
     end
   end
