@@ -97,7 +97,6 @@ module RuboCop
               Exclude:
                 - "**/*.blah"
           END
-
         end
 
         before do
@@ -149,7 +148,7 @@ module RuboCop
         end
 
         let(:filenames) do
-          16.times.map { |index| format('test_%02d.rb', index + 1) }
+          Array.new(16) { |index| format('test_%02d.rb', index + 1) }
         end
 
         let(:expected_rubocop_todo) do
@@ -204,7 +203,7 @@ module RuboCop
         end
 
         let(:filenames) do
-          6.times.map { |index| format('test_%02d.rb', index + 1) }
+          Array.new(6) { |index| format('test_%02d.rb', index + 1) }
         end
 
         let(:expected_heading_command) do

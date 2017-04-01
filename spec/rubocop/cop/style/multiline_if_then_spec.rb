@@ -20,7 +20,7 @@ describe RuboCop::Cop::Style::MultilineIfThen do
       end
       if cond then\t
       end
-      if cond then  
+      if cond then
       end
       if cond
       then

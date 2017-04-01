@@ -365,7 +365,7 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
       src = <<-END.strip_indent
         class SomeClass
           private
-          
+
           delegate :foo, to: :bar
         end
       END
@@ -377,7 +377,7 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
       src = <<-END.strip_indent
         class SomeClass
           delegate :foo, to: :bar
-          
+
           private
         end
       END

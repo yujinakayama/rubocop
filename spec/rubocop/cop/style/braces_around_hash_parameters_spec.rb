@@ -20,8 +20,8 @@ describe RuboCop::Cop::Style::BracesAroundHashParameters, :config do
 
     it 'accepts one empty hash parameter with whitespace' do
       inspect_source(cop, <<-END.strip_indent)
-        where(  {     
-         }\t   )  
+        where(  {
+         }\t   )
       END
     end
   end
@@ -107,11 +107,11 @@ describe RuboCop::Cop::Style::BracesAroundHashParameters, :config do
 
     it 'corrects one hash parameter with braces and whitespace' do
       corrected = autocorrect_source(cop, <<-END.strip_indent)
-        where(  
+        where(
          { x: 1 }   )
       END
       expect(corrected).to eq(<<-END.strip_indent)
-        where(  
+        where(
          x: 1   )
       END
     end
@@ -270,7 +270,7 @@ describe RuboCop::Cop::Style::BracesAroundHashParameters, :config do
 
       it 'accepts one hash parameter with braces and whitespace' do
         inspect_source(cop, <<-END.strip_indent)
-          where( \t    {  x: 1 
+          where( \t    {  x: 1
             }   )
         END
       end

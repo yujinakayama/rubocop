@@ -62,7 +62,7 @@ describe RuboCop::Cop::Rails::ReadWriteAttribute do
       it 'autocorrects multiline' do
         source = <<-END.strip_indent
           write_attribute(
-          :attr, 
+          :attr,
           (
           'test_' + postfix
           ).to_sym

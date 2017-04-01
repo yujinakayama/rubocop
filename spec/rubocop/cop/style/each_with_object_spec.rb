@@ -22,33 +22,25 @@ describe RuboCop::Cop::Style::EachWithObject do
   end
 
   it 'correctly autocorrects' do
-    corrected = autocorrect_source(cop, <<-END.strip_indent)
-      [1, 2, 3].inject({}) do |h, i|
-        h[i] = i
-        h
-      end
-    END
+    corrected = autocorrect_source(cop, ['[1, 2, 3].inject({}) do |h, i|',
+                                         '  h[i] = i',
+                                         '  h',
+                                         'end'])
 
-    expect(corrected).to eq(<<-END.strip_indent)
-      [1, 2, 3].each_with_object({}) do |i, h|
-        h[i] = i
-        
-      end
-    END
+    expect(corrected).to eq(['[1, 2, 3].each_with_object({}) do |i, h|',
+                             '  h[i] = i',
+                             '  ',
+                             'end'].join("\n"))
   end
 
   it 'correctly autocorrects with return value only' do
-    corrected = autocorrect_source(cop, <<-END.strip_indent)
-      [1, 2, 3].inject({}) do |h, i|
-        h
-      end
-    END
+    corrected = autocorrect_source(cop, ['[1, 2, 3].inject({}) do |h, i|',
+                                         '  h',
+                                         'end'])
 
-    expect(corrected).to eq(<<-END.strip_indent)
-      [1, 2, 3].each_with_object({}) do |i, h|
-        
-      end
-    END
+    expect(corrected).to eq(['[1, 2, 3].each_with_object({}) do |i, h|',
+                             '  ',
+                             'end'].join("\n"))
   end
 
   it 'ignores inject and reduce with passed in, but not returned hash' do

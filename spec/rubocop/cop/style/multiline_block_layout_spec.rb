@@ -129,68 +129,52 @@ describe RuboCop::Cop::Style::MultilineBlockLayout do
   end
 
   it 'auto-corrects a do/end block with params that is missing newlines' do
-    src = <<-END.strip_indent
-      test do |foo| bar
-      end
-    END
+    src = ['test do |foo| bar',
+           'end']
 
     new_source = autocorrect_source(cop, src)
 
-    expect(new_source).to eq(<<-END.strip_indent)
-      test do |foo| 
-        bar
-      end
-    END
+    expect(new_source).to eq(['test do |foo| ',
+                              '  bar',
+                              'end'].join("\n"))
   end
 
   it 'auto-corrects a do/end block with a mult-line body' do
-    src = <<-END.strip_indent
-      test do |foo| bar
-        test
-      end
-    END
+    src = ['test do |foo| bar',
+           '  test',
+           'end']
 
     new_source = autocorrect_source(cop, src)
 
-    expect(new_source).to eq(<<-END.strip_indent)
-      test do |foo| 
-        bar
-        test
-      end
-    END
+    expect(new_source).to eq(['test do |foo| ',
+                              '  bar',
+                              '  test',
+                              'end'].join("\n"))
   end
 
   it 'auto-corrects a {} block with params that is missing newlines' do
-    src = <<-END.strip_indent
-      test { |foo| bar
-      }
-    END
+    src = ['test { |foo| bar',
+           '}']
 
     new_source = autocorrect_source(cop, src)
 
-    expect(new_source).to eq(<<-END.strip_indent)
-      test { |foo| 
-        bar
-      }
-    END
+    expect(new_source).to eq(['test { |foo| ',
+                              '  bar',
+                              '}'].join("\n"))
   end
 
   it 'autocorrects in more complex case with lambda and assignment, and '\
      'aligns the next line two spaces out from the start of the block' do
-    src = <<-END.strip_indent
-      x = -> (y) { foo
-        bar
-      }
-    END
+    src = ['x = -> (y) { foo',
+           '  bar',
+           '}']
 
     new_source = autocorrect_source(cop, src)
 
-    expect(new_source).to eq(<<-END.strip_indent)
-      x = -> (y) { 
-            foo
-        bar
-      }
-    END
+    expect(new_source).to eq(['x = -> (y) { ',
+                              '      foo',
+                              '  bar',
+                              '}'].join("\n"))
   end
 
   it 'auto-corrects a line-break before arguments' do

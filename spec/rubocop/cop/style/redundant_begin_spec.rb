@@ -69,26 +69,22 @@ describe RuboCop::Cop::Style::RedundantBegin do
 
   it 'auto-corrects source separated by newlines ' \
      'by removing redundant begin blocks' do
-    src = <<-END.strip_indent
-        def func
-          begin
-            foo
-            bar
-          rescue
-            baz
-          end
-        end
-    END
-    result_src = <<-END.strip_indent
-        def func
-          
-            foo
-            bar
-          rescue
-            baz
-          
-        end
-    END
+    src = ['  def func',
+           '    begin',
+           '      foo',
+           '      bar',
+           '    rescue',
+           '      baz',
+           '    end',
+           '  end'].join("\n")
+    result_src = ['  def func',
+                  '    ',
+                  '      foo',
+                  '      bar',
+                  '    rescue',
+                  '      baz',
+                  '    ',
+                  '  end'].join("\n")
     new_source = autocorrect_source(cop, src)
     expect(new_source).to eq(result_src)
   end
@@ -102,39 +98,35 @@ describe RuboCop::Cop::Style::RedundantBegin do
   end
 
   it "doesn't modify spacing when auto-correcting" do
-    src = <<-END.strip_indent
-      def method
-        begin
-          BlockA do |strategy|
-            foo
-          end
+    src = ['def method',
+           '  begin',
+           '    BlockA do |strategy|',
+           '      foo',
+           '    end',
+           '',
+           '    BlockB do |portfolio|',
+           '      foo',
+           '    end',
+           '',
+           '  rescue => e # some problem',
+           '    bar',
+           '  end',
+           'end']
 
-          BlockB do |portfolio|
-            foo
-          end
-
-        rescue => e # some problem
-          bar
-        end
-      end
-    END
-
-    result_src = <<-END.strip_indent
-      def method
-        
-          BlockA do |strategy|
-            foo
-          end
-
-          BlockB do |portfolio|
-            foo
-          end
-
-        rescue => e # some problem
-          bar
-        
-      end
-    END
+    result_src = ['def method',
+                  '  ',
+                  '    BlockA do |strategy|',
+                  '      foo',
+                  '    end',
+                  '',
+                  '    BlockB do |portfolio|',
+                  '      foo',
+                  '    end',
+                  '',
+                  '  rescue => e # some problem',
+                  '    bar',
+                  '  ',
+                  'end'].join("\n")
     new_source = autocorrect_source(cop, src)
     expect(new_source).to eq(result_src)
   end

@@ -338,7 +338,7 @@ describe RuboCop::Cop::Style::Next, :config do
           # keep me
           something # keep me
           # keep me
-          
+
         end # keep me
       end
     END
@@ -348,7 +348,7 @@ describe RuboCop::Cop::Style::Next, :config do
         # keep me
         something # keep me
         # keep me
-          
+
        # keep me
       end
     END

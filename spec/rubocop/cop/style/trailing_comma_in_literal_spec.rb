@@ -148,7 +148,7 @@ describe RuboCop::Cop::Style::TrailingCommaInLiteral, :config do
 
       it 'accepts comma in comment after last value item' do
         inspect_source(cop, <<-END.strip_indent)
-          { 
+          {
             foo: 'foo',
             bar: 'bar'.delete(',')#,
           }

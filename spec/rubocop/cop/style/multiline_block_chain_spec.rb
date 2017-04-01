@@ -55,7 +55,7 @@ describe RuboCop::Cop::Style::MultilineBlockChain do
 
     it 'accepts a chain where the first block is single-line' do
       inspect_source(cop, <<-END.strip_indent)
-        Thread.list.find_all { |t| t.alive? }.map { |t| 
+        Thread.list.find_all { |t| t.alive? }.map { |t|
           t.object_id
         }
       END

@@ -37,32 +37,24 @@ describe RuboCop::Cop::Style::BlockEndNewline do
   end
 
   it 'autocorrects a do/end block where the end is not on its own line' do
-    src = <<-END.strip_indent
-      test do
-        foo end
-    END
+    src = ['test do',
+           '  foo end']
 
     new_source = autocorrect_source(cop, src)
 
-    expect(new_source).to eq(<<-END.strip_indent)
-      test do
-        foo 
-      end
-    END
+    expect(new_source).to eq(['test do',
+                              '  foo ',
+                              'end'].join("\n"))
   end
 
   it 'autocorrects a {} block where the } is not on its own line' do
-    src = <<-END.strip_indent
-      test {
-        foo }
-    END
+    src = ['test {',
+           '  foo }']
 
     new_source = autocorrect_source(cop, src)
 
-    expect(new_source).to eq(<<-END.strip_indent)
-      test {
-        foo 
-      }
-    END
+    expect(new_source).to eq(['test {',
+                              '  foo ',
+                              '}'].join("\n"))
   end
 end
