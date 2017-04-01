@@ -256,22 +256,28 @@ describe RuboCop::Cop::Performance::StringReplacement do
     end
 
     it 'allows regex literal containing interpolations' do
-      inspect_source(cop, ["foo = 'a'",
-                           '"abc".gsub(/#{foo}/, "d")'])
+      inspect_source(cop, <<-'END'.strip_indent)
+        foo = 'a'
+        "abc".gsub(/#{foo}/, "d")
+      END
 
       expect(cop.messages).to be_empty
     end
 
     it 'allows regex constructor containing a string with interpolations' do
-      inspect_source(cop, ["foo = 'a'",
-                           '"abc".gsub(Regexp.new("#{foo}"), "d")'])
+      inspect_source(cop, <<-'END'.strip_indent)
+        foo = 'a'
+        "abc".gsub(Regexp.new("#{foo}"), "d")
+      END
 
       expect(cop.messages).to be_empty
     end
 
     it 'allows regex constructor containing regex with interpolations' do
-      inspect_source(cop, ["foo = 'a'",
-                           '"abc".gsub(Regexp.new(/#{foo}/), "d")'])
+      inspect_source(cop, <<-'END'.strip_indent)
+        foo = 'a'
+        "abc".gsub(Regexp.new(/#{foo}/), "d")
+      END
 
       expect(cop.messages).to be_empty
     end

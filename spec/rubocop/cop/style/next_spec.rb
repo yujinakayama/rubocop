@@ -332,99 +332,121 @@ describe RuboCop::Cop::Style::Next, :config do
   end
 
   it 'keeps comments when autocorrecting' do
-    new_source = autocorrect_source(cop, ['loop do',
-                                          '  if test # keep me',
-                                          '    # keep me',
-                                          '    something # keep me',
-                                          '    # keep me',
-                                          '    ',
-                                          '  end # keep me',
-                                          'end'])
-    expect(new_source).to eq(['loop do',
-                              '  next unless test # keep me',
-                              '  # keep me',
-                              '  something # keep me',
-                              '  # keep me',
-                              '    ',
-                              ' # keep me',
-                              'end'].join("\n"))
+    new_source = autocorrect_source(cop, <<-END.strip_indent)
+      loop do
+        if test # keep me
+          # keep me
+          something # keep me
+          # keep me
+          
+        end # keep me
+      end
+    END
+    expect(new_source).to eq(<<-END.strip_indent)
+      loop do
+        next unless test # keep me
+        # keep me
+        something # keep me
+        # keep me
+          
+       # keep me
+      end
+    END
   end
 
   it 'handles `then` when autocorrecting' do
-    new_source = autocorrect_source(cop, ['loop do',
-                                          '  if test then',
-                                          '    something',
-                                          '  end',
-                                          'end'])
-    expect(new_source).to eq(['loop do',
-                              '  next unless test',
-                              '  something',
-                              'end'].join("\n"))
+    new_source = autocorrect_source(cop, <<-END.strip_indent)
+      loop do
+        if test then
+          something
+        end
+      end
+    END
+    expect(new_source).to eq(<<-END.strip_indent)
+      loop do
+        next unless test
+        something
+      end
+    END
   end
 
   it "doesn't reindent heredoc bodies when autocorrecting" do
-    new_source = autocorrect_source(cop, ['loop do',
-                                          '  if test',
-                                          '    str = <<-BLAH',
-                                          '  this is a heredoc',
-                                          '   nice eh?',
-                                          '    BLAH',
-                                          '    something',
-                                          '  end',
-                                          'end'])
-    expect(new_source).to eq(['loop do',
-                              '  next unless test',
-                              '  str = <<-BLAH',
-                              '  this is a heredoc',
-                              '   nice eh?',
-                              '  BLAH',
-                              '  something',
-                              'end'].join("\n"))
+    new_source = autocorrect_source(cop, <<-END.strip_indent)
+      loop do
+        if test
+          str = <<-BLAH
+        this is a heredoc
+         nice eh?
+          BLAH
+          something
+        end
+      end
+    END
+    expect(new_source).to eq(<<-END.strip_indent)
+      loop do
+        next unless test
+        str = <<-BLAH
+        this is a heredoc
+         nice eh?
+        BLAH
+        something
+      end
+    END
   end
 
   it 'handles nested autocorrections' do
-    new_source = autocorrect_source(cop, ['loop do',
-                                          '  if test',
-                                          '    loop do',
-                                          '      if test',
-                                          '        something',
-                                          '      end',
-                                          '    end',
-                                          '  end',
-                                          'end'])
-    expect(new_source).to eq(['loop do',
-                              '  next unless test',
-                              '  loop do',
-                              '    next unless test',
-                              '    something',
-                              '  end',
-                              'end'].join("\n"))
+    new_source = autocorrect_source(cop, <<-END.strip_indent)
+      loop do
+        if test
+          loop do
+            if test
+              something
+            end
+          end
+        end
+      end
+    END
+    expect(new_source).to eq(<<-END.strip_indent)
+      loop do
+        next unless test
+        loop do
+          next unless test
+          something
+        end
+      end
+    END
   end
 
   it_behaves_like 'iterators', 'if'
   it_behaves_like 'iterators', 'unless'
 
   it 'allows empty blocks' do
-    inspect_source(cop, ['[].each do',
-                         'end',
-                         '[].each { }'])
+    inspect_source(cop, <<-END.strip_indent)
+      [].each do
+      end
+      [].each { }
+    END
 
     expect(cop.offenses).to be_empty
   end
 
   it 'allows loops with conditions at the end with ternary op' do
-    inspect_source(cop, ['[].each do |o|',
-                         '  o == x ? y : z',
-                         'end'])
+    inspect_source(cop, <<-END.strip_indent)
+      [].each do |o|
+        o == x ? y : z
+      end
+    END
 
     expect(cop.offenses).to be_empty
   end
 
   it 'allows super nodes' do
     # https://github.com/bbatsov/rubocop/issues/1115
-    inspect_source(cop, ['def foo',
-                         '  super(a, a) { a }',
-                         'end'])
+    inspect_source(cop, <<-END.strip_indent)
+      def foo
+        super(a, a) { a }
+      end
+    END
 
     expect(cop.offenses).to be_empty
   end
@@ -448,17 +470,21 @@ describe RuboCop::Cop::Style::Next, :config do
   end
 
   it 'does not crash with an empty body branch' do
-    inspect_source(cop, ['loop do',
-                         '  if true',
-                         '  end',
-                         'end'])
+    inspect_source(cop, <<-END.strip_indent)
+      loop do
+        if true
+        end
+      end
+    END
     expect(cop.offenses).to be_empty
   end
 
   it 'does not crash with empty brackets' do
-    inspect_source(cop, ['loop do',
-                         '  ()',
-                         'end'])
+    inspect_source(cop, <<-END.strip_indent)
+      loop do
+        ()
+      end
+    END
     expect(cop.offenses).to be_empty
   end
 
@@ -468,11 +494,13 @@ describe RuboCop::Cop::Style::Next, :config do
     end
 
     it 'accepts if whose body has 1 line' do
-      inspect_source(cop, ['arr.each do |e|',
-                           '  if something',
-                           '    work',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        arr.each do |e|
+          if something
+            work
+          end
+        end
+      END
 
       expect(cop.offenses).to be_empty
     end
@@ -484,11 +512,13 @@ describe RuboCop::Cop::Style::Next, :config do
     end
 
     it 'fails with an error' do
-      source = ['loop do',
-                '  if o == 1',
-                '    puts o',
-                '  end',
-                'end']
+      source = <<-END.strip_indent
+        loop do
+          if o == 1
+            puts o
+          end
+        end
+      END
 
       expect { inspect_source(cop, source) }
         .to raise_error('MinBodyLength needs to be a positive integer!')

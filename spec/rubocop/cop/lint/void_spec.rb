@@ -54,39 +54,44 @@ describe RuboCop::Cop::Lint::Void do
   end
 
   it 'registers an offense for void `defined?` if not on last line' do
-    inspect_source(cop,
-                   ['defined?(x)',
-                    'top'])
+    inspect_source(cop, <<-END.strip_indent)
+      defined?(x)
+      top
+    END
     expect(cop.offenses.size).to eq(1)
   end
 
   it 'handles explicit begin blocks' do
-    inspect_source(cop,
-                   ['begin',
-                    ' 1',
-                    ' 2',
-                    'end'])
+    inspect_source(cop, <<-END.strip_indent)
+      begin
+       1
+       2
+      end
+    END
     expect(cop.offenses.size).to eq(1)
   end
 
   it 'accepts short call syntax' do
-    inspect_source(cop,
-                   ['lambda.(a)',
-                    'top'])
+    inspect_source(cop, <<-END.strip_indent)
+      lambda.(a)
+      top
+    END
     expect(cop.offenses).to be_empty
   end
 
   it 'accepts backtick commands' do
-    inspect_source(cop,
-                   ['`touch x`',
-                    'nil'])
+    inspect_source(cop, <<-END.strip_indent)
+      `touch x`
+      nil
+    END
     expect(cop.offenses).to be_empty
   end
 
   it 'accepts percent-x commands' do
-    inspect_source(cop,
-                   ['%x(touch x)',
-                    'nil'])
+    inspect_source(cop, <<-END.strip_indent)
+      %x(touch x)
+      nil
+    END
     expect(cop.offenses).to be_empty
   end
 end

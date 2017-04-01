@@ -39,11 +39,13 @@ describe RuboCop::Cop::Style::SafeNavigation, :config do
 
     it 'allows object checks in the condition of an elsif statement ' \
       'and a method call on that object in the body' do
-      inspect_source(cop, ['if foo',
-                           '  something',
-                           'elsif bar',
-                           '  bar.baz',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        if foo
+          something
+        elsif bar
+          bar.baz
+        end
+      END
 
       expect(cop.offenses).to be_empty
     end
