@@ -47,52 +47,38 @@ describe RuboCop::Cop::Style::InfiniteLoop do
       end
 
       it "auto-corrects multi-line modifier #{keyword} and indents correctly" do
-        new_source = autocorrect_source(cop, <<-END.strip_indent)
-          # comment
-          something 1, # comment 1
-              # comment 2
-              2 #{keyword} #{lit}
-        END
-
-        expect(new_source).to eq(<<-END.strip_indent)
-          # comment
-          loop do
-              something 1, # comment 1
-                  # comment 2
-                  2
-          end
-        END
+        new_source = autocorrect_source(cop, ['# comment',
+                                              'something 1, # comment 1',
+                                              '    # comment 2',
+                                              "    2 #{keyword} #{lit}"])
+        expect(new_source).to eq(['# comment',
+                                  'loop do',
+                                  '    something 1, # comment 1',
+                                  '        # comment 2',
+                                  '        2',
+                                  'end'].join("\n"))
       end
     end
 
     it "auto-corrects begin-end-#{keyword} with one statement" do
-      new_source = autocorrect_source(cop, <<-END.strip_indent)
-        begin # comment 1
-          something += 1 # comment 2
-        end #{keyword} #{lit} # comment 3
-      END
-
-      expect(new_source).to eq(<<-END.strip_indent)
-        loop do # comment 1
-          something += 1 # comment 2
-        end # comment 3
-      END
+      new_source = autocorrect_source(cop,
+                                      ['  begin # comment 1',
+                                       '    something += 1 # comment 2',
+                                       "  end #{keyword} #{lit} # comment 3"])
+      expect(new_source).to eq(['  loop do # comment 1',
+                                '    something += 1 # comment 2',
+                                '  end # comment 3'].join("\n"))
     end
 
     it "auto-corrects begin-end-#{keyword} with two statements" do
-      new_source = autocorrect_source(cop, <<-END.strip_indent)
-        begin
-         something += 1
-         something_else += 1
-        end #{keyword} #{lit}
-      END
-
-      expect(new_source).to eq(<<-END.strip_indent)
-         loop do
-          something += 1
-          something_else += 1
-         end
-      END
+      new_source = autocorrect_source(cop, [' begin',
+                                            '  something += 1',
+                                            '  something_else += 1',
+                                            " end #{keyword} #{lit}"])
+      expect(new_source).to eq([' loop do',
+                                '  something += 1',
+                                '  something_else += 1',
+                                ' end'].join("\n"))
     end
 
     it "auto-corrects single line modifier #{keyword} with and" do
@@ -103,27 +89,17 @@ describe RuboCop::Cop::Style::InfiniteLoop do
     end
 
     it "auto-corrects the usage of #{keyword} with do" do
-      new_source = autocorrect_source(cop, <<-END.strip_indent)
-        #{keyword} #{lit} do
-        end
-      END
-
-      expect(new_source).to eq(<<-END.strip_indent)
-        loop do
-        end
-      END
+      new_source = autocorrect_source(cop, ["#{keyword} #{lit} do",
+                                            'end'])
+      expect(new_source).to eq(['loop do',
+                                'end'].join("\n"))
     end
 
     it "auto-corrects the usage of #{keyword} without do" do
-      new_source = autocorrect_source(cop, <<-END.strip_indent)
-        #{keyword} #{lit}
-        end
-      END
-
-      expect(new_source).to eq(<<-END.strip_indent)
-        loop do
-        end
-      END
+      new_source = autocorrect_source(cop, ["#{keyword} #{lit}",
+                                            'end'])
+      expect(new_source).to eq(['loop do',
+                                'end'].join("\n"))
     end
   end
 
