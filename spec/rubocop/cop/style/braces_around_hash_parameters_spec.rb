@@ -19,10 +19,8 @@ describe RuboCop::Cop::Style::BracesAroundHashParameters, :config do
     end
 
     it 'accepts one empty hash parameter with whitespace' do
-      inspect_source(cop, <<-END.strip_indent)
-        where(  {     
-         }\t   )  
-      END
+      inspect_source(cop, ['where(  {     ',
+                           " }\t   )  "])
     end
   end
 
@@ -106,14 +104,10 @@ describe RuboCop::Cop::Style::BracesAroundHashParameters, :config do
     end
 
     it 'corrects one hash parameter with braces and whitespace' do
-      corrected = autocorrect_source(cop, <<-END.strip_indent)
-        where(  
-         { x: 1 }   )
-      END
-      expect(corrected).to eq(<<-END.strip_indent)
-        where(  
-         x: 1   )
-      END
+      corrected = autocorrect_source(cop, ['where(  ',
+                                           ' { x: 1 }   )'])
+      expect(corrected).to eq(['where(  ',
+                               ' x: 1   )'].join("\n"))
     end
 
     it 'corrects one hash parameter with braces and multiple keys' do
@@ -150,19 +144,15 @@ describe RuboCop::Cop::Style::BracesAroundHashParameters, :config do
 
     context 'with a comment following the last key-value pair' do
       it 'corrects and leaves line breaks' do
-        src = <<-END.strip_indent
-          r = opts.merge({
-            p1: opts[:a],
-            p2: (opts[:b] || opts[:c]) # a comment
-          })
-        END
+        src = ['r = opts.merge({',
+               '  p1: opts[:a],',
+               '  p2: (opts[:b] || opts[:c]) # a comment',
+               '})']
         corrected = autocorrect_source(cop, src)
-        expect(corrected).to eq(<<-END.strip_indent)
-          r = opts.merge(
-            p1: opts[:a],
-            p2: (opts[:b] || opts[:c]) # a comment
-          )
-        END
+        expect(corrected).to eq(['r = opts.merge(',
+                                 '  p1: opts[:a],',
+                                 '  p2: (opts[:b] || opts[:c]) # a comment',
+                                 ')'].join("\n"))
       end
     end
 
@@ -269,10 +259,8 @@ describe RuboCop::Cop::Style::BracesAroundHashParameters, :config do
       end
 
       it 'accepts one hash parameter with braces and whitespace' do
-        inspect_source(cop, <<-END.strip_indent)
-          where( \t    {  x: 1 
-            }   )
-        END
+        inspect_source(cop, ["where( \t    {  x: 1 ",
+                             '  }   )'])
       end
     end
 
