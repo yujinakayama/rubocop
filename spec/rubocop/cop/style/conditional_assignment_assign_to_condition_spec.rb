@@ -115,11 +115,13 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
   shared_examples 'comparison methods' do |method|
     it 'registers an offense for comparison methods in if else' do
-      source = ['if foo',
-                "  a #{method} b",
-                'else',
-                "  a #{method} d",
-                'end']
+      source = <<-END.strip_indent
+        if foo
+          a #{method} b
+        else
+          a #{method} d
+        end
+      END
 
       inspect_source(cop, source)
 
@@ -127,11 +129,13 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
     end
 
     it 'registers an offense for comparison methods in unless else' do
-      source = ['unless foo',
-                "  a #{method} b",
-                'else',
-                "  a #{method} d",
-                'end']
+      source = <<-END.strip_indent
+        unless foo
+          a #{method} b
+        else
+          a #{method} d
+        end
+      END
 
       inspect_source(cop, source)
 
@@ -139,12 +143,14 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
     end
 
     it 'registers an offense for comparison methods in case when' do
-      source = ['case foo',
-                'when bar',
-                "  a #{method} b",
-                'else',
-                "  a #{method} d",
-                'end']
+      source = <<-END.strip_indent
+        case foo
+        when bar
+          a #{method} b
+        else
+          a #{method} d
+        end
+      END
 
       inspect_source(cop, source)
 
@@ -410,12 +416,14 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
   context 'correction would exceed max line length' do
     it 'allows assignment to the same variable in if else if the correction ' \
        'would create a line longer than the configured LineLength' do
-      source = ['if foo',
-                "  #{'a' * 78}",
-                '  bar = 1',
-                'else',
-                '  bar = 2',
-                'end']
+      source = <<-END.strip_indent
+        if foo
+          #{'a' * 78}
+          bar = 1
+        else
+          bar = 2
+        end
+      END
 
       inspect_source(cop, source)
 
@@ -424,11 +432,13 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
     it 'allows assignment to the same variable in if else if the correction ' \
        'would cause the condition to exceed the configured LineLength' do
-      source = ["if #{'a' * 78}",
-                '  bar = 1',
-                'else',
-                '  bar = 2',
-                'end']
+      source = <<-END.strip_indent
+        if #{'a' * 78}
+          bar = 1
+        else
+          bar = 2
+        end
+      END
 
       inspect_source(cop, source)
 
@@ -437,13 +447,15 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
     it 'allows assignment to the same variable in case when else if the ' \
        'correction would create a line longer than the configured LineLength' do
-      source = ['case foo',
-                'when foobar',
-                "  #{'a' * 78}",
-                '  bar = 1',
-                'else',
-                '  bar = 2',
-                'end']
+      source = <<-END.strip_indent
+        case foo
+        when foobar
+          #{'a' * 78}
+          bar = 1
+        else
+          bar = 2
+        end
+      END
 
       inspect_source(cop, source)
 
@@ -459,46 +471,54 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
     end
 
     it 'registers an offense assigning any variable type in if else' do
-      source = ['if foo',
-                "  #{variable} = 1",
-                'else',
-                "  #{variable} = 2",
-                'end']
+      source = <<-END.strip_indent
+        if foo
+          #{variable} = 1
+        else
+          #{variable} = 2
+        end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::MSG])
     end
 
     it 'registers an offense assigning any variable type in case when' do
-      source = ['case foo',
-                'when "a"',
-                "  #{variable} = 1",
-                'else',
-                "  #{variable} = 2",
-                'end']
+      source = <<-END.strip_indent
+        case foo
+        when "a"
+          #{variable} = 1
+        else
+          #{variable} = 2
+        end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::MSG])
     end
 
     it 'allows assignment to the return of if else' do
-      source = ["#{variable} = if foo",
-                '                1',
-                '              else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = if foo
+                        1
+                      else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.offenses).to be_empty
     end
 
     it 'allows assignment to the return of case when' do
-      source = ["#{variable} = case foo",
-                '              when bar',
-                '                1',
-                '              else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = case foo
+                      when bar
+                        1
+                      else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.offenses).to be_empty
@@ -543,11 +563,13 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
         it "registers an offense for assignment using #{assignment} in " \
            'if else' do
-          source = ['if foo',
-                    "  #{name} #{assignment} 1",
-                    'else',
-                    "  #{name} #{assignment} 2",
-                    'end']
+          source = <<-END.strip_indent
+            if foo
+              #{name} #{assignment} 1
+            else
+              #{name} #{assignment} 2
+            end
+          END
           inspect_source(cop, source)
 
           expect(cop.messages).to eq([described_class::MSG])
@@ -555,31 +577,37 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
         it "registers an offense for assignment using #{assignment} in "\
         ' case when' do
-          source = ['case foo',
-                    'when "a"',
-                    "  #{name} #{assignment} 1",
-                    'else',
-                    "  #{name} #{assignment} 2",
-                    'end']
+          source = <<-END.strip_indent
+            case foo
+            when "a"
+              #{name} #{assignment} 1
+            else
+              #{name} #{assignment} 2
+            end
+          END
           inspect_source(cop, source)
 
           expect(cop.messages).to eq([described_class::MSG])
         end
 
         it "autocorrects for assignment using #{assignment} in if else" do
-          source = ['if foo',
-                    "  #{name} #{assignment} 1",
-                    'else',
-                    "  #{name} #{assignment} 2",
-                    'end']
+          source = <<-END.strip_indent
+            if foo
+              #{name} #{assignment} 1
+            else
+              #{name} #{assignment} 2
+            end
+          END
           new_source = autocorrect_source(cop, source)
 
           indent = ' ' * "#{name} #{assignment} ".length
-          expect(new_source).to eq ["#{name} #{assignment} if foo",
-                                    '  1',
-                                    'else',
-                                    '  2',
-                                    "#{indent}end"].join("\n")
+          expect(new_source).to eq <<-END.strip_indent
+            #{name} #{assignment} if foo
+              1
+            else
+              2
+            #{indent}end
+          END
         end
       end
     end
@@ -1135,60 +1163,72 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
   context 'auto-correct' do
     shared_examples 'comparison correction' do |method|
       it 'corrects comparison methods in if elsif else' do
-        source = ['if foo',
-                  "  a #{method} b",
-                  'elsif bar',
-                  "  a #{method} c",
-                  'else',
-                  "  a #{method} d",
-                  'end']
+        source = <<-END.strip_indent
+          if foo
+            a #{method} b
+          elsif bar
+            a #{method} c
+          else
+            a #{method} d
+          end
+        END
 
         new_source = autocorrect_source(cop, source)
 
         indent = ' ' * "a #{method} ".length
-        expect(new_source).to eq(["a #{method} if foo",
-                                  '  b',
-                                  'elsif bar',
-                                  '  c',
-                                  'else',
-                                  '  d',
-                                  "#{indent}end"].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          a #{method} if foo
+            b
+          elsif bar
+            c
+          else
+            d
+          #{indent}end
+        END
       end
 
       it 'corrects comparison methods in unless else' do
-        source = ['unless foo',
-                  "  a #{method} b",
-                  'else',
-                  "  a #{method} d",
-                  'end']
+        source = <<-END.strip_indent
+          unless foo
+            a #{method} b
+          else
+            a #{method} d
+          end
+        END
 
         new_source = autocorrect_source(cop, source)
 
         indent = ' ' * "a #{method} ".length
-        expect(new_source).to eq(["a #{method} unless foo",
-                                  '  b',
-                                  'else',
-                                  '  d',
-                                  "#{indent}end"].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          a #{method} unless foo
+            b
+          else
+            d
+          #{indent}end
+        END
       end
 
       it 'corrects comparison methods in case when' do
-        source = ['case foo',
-                  'when bar',
-                  "  a #{method} b",
-                  'else',
-                  "  a #{method} d",
-                  'end']
+        source = <<-END.strip_indent
+          case foo
+          when bar
+            a #{method} b
+          else
+            a #{method} d
+          end
+        END
 
         new_source = autocorrect_source(cop, source)
 
         indent = ' ' * "a #{method} ".length
-        expect(new_source).to eq(["a #{method} case foo",
-                                  'when bar',
-                                  '  b',
-                                  'else',
-                                  '  d',
-                                  "#{indent}end"].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          a #{method} case foo
+          when bar
+            b
+          else
+            d
+          #{indent}end
+        END
       end
     end
 
@@ -1271,57 +1311,69 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
     shared_examples '2 character assignment types' do |asgn|
       it "corrects assignment using #{asgn} in if elsif else" do
-        source = ['if foo',
-                  "  bar #{asgn} 1",
-                  'elsif baz',
-                  "  bar #{asgn} 2",
-                  'else',
-                  "  bar #{asgn} 3",
-                  'end']
+        source = <<-END.strip_indent
+          if foo
+            bar #{asgn} 1
+          elsif baz
+            bar #{asgn} 2
+          else
+            bar #{asgn} 3
+          end
+        END
 
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(["bar #{asgn} if foo",
-                                  '  1',
-                                  'elsif baz',
-                                  '  2',
-                                  'else',
-                                  '  3',
-                                  '       end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          bar #{asgn} if foo
+            1
+          elsif baz
+            2
+          else
+            3
+                 end
+        END
       end
 
       it "corrects assignment using #{asgn} in case when else" do
-        source = ['case foo',
-                  'when bar',
-                  "  baz #{asgn} 1",
-                  'else',
-                  "  baz #{asgn} 2",
-                  'end']
+        source = <<-END.strip_indent
+          case foo
+          when bar
+            baz #{asgn} 1
+          else
+            baz #{asgn} 2
+          end
+        END
 
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(["baz #{asgn} case foo",
-                                  'when bar',
-                                  '  1',
-                                  'else',
-                                  '  2',
-                                  '       end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          baz #{asgn} case foo
+          when bar
+            1
+          else
+            2
+                 end
+        END
       end
 
       it "corrects assignment using #{asgn} in unless else" do
-        source = ['unless foo',
-                  "  bar #{asgn} 1",
-                  'else',
-                  "  bar #{asgn} 2",
-                  'end']
+        source = <<-END.strip_indent
+          unless foo
+            bar #{asgn} 1
+          else
+            bar #{asgn} 2
+          end
+        END
 
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(["bar #{asgn} unless foo",
-                                  '  1',
-                                  'else',
-                                  '  2',
-                                  '       end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          bar #{asgn} unless foo
+            1
+          else
+            2
+                 end
+        END
       end
     end
 
@@ -1331,57 +1383,69 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
     shared_examples '3 character assignment types' do |asgn|
       it "corrects assignment using #{asgn} in if elsif else" do
-        source = ['if foo',
-                  "  bar #{asgn} 1",
-                  'elsif baz',
-                  "  bar #{asgn} 2",
-                  'else',
-                  "  bar #{asgn} 3",
-                  'end']
+        source = <<-END.strip_indent
+          if foo
+            bar #{asgn} 1
+          elsif baz
+            bar #{asgn} 2
+          else
+            bar #{asgn} 3
+          end
+        END
 
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(["bar #{asgn} if foo",
-                                  '  1',
-                                  'elsif baz',
-                                  '  2',
-                                  'else',
-                                  '  3',
-                                  '        end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          bar #{asgn} if foo
+            1
+          elsif baz
+            2
+          else
+            3
+                  end
+        END
       end
 
       it "corrects assignment using #{asgn} in case when else" do
-        source = ['case foo',
-                  'when bar',
-                  "  baz #{asgn} 1",
-                  'else',
-                  "  baz #{asgn} 2",
-                  'end']
+        source = <<-END.strip_indent
+          case foo
+          when bar
+            baz #{asgn} 1
+          else
+            baz #{asgn} 2
+          end
+        END
 
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(["baz #{asgn} case foo",
-                                  'when bar',
-                                  '  1',
-                                  'else',
-                                  '  2',
-                                  '        end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          baz #{asgn} case foo
+          when bar
+            1
+          else
+            2
+                  end
+        END
       end
 
       it "corrects assignment using #{asgn} in unless else" do
-        source = ['unless foo',
-                  "  bar #{asgn} 1",
-                  'else',
-                  "  bar #{asgn} 2",
-                  'end']
+        source = <<-END.strip_indent
+          unless foo
+            bar #{asgn} 1
+          else
+            bar #{asgn} 2
+          end
+        END
 
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(["bar #{asgn} unless foo",
-                                  '  1',
-                                  'else',
-                                  '  2',
-                                  '        end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          bar #{asgn} unless foo
+            1
+          else
+            2
+                  end
+        END
       end
     end
 

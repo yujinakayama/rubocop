@@ -70,11 +70,12 @@ describe RuboCop::CLI, :isolated_environment do
           expect(cli.run(['--format', 'simple', checked_path])).to eq(1)
         end
         expect($stdout.string)
-          .to eq(["== #{abs('Rakefile')} ==",
-                  'W:  1:  1: Useless assignment to variable - x.',
-                  '',
-                  '1 file inspected, 1 offense detected',
-                  ''].join("\n"))
+          .to eq(<<-END.strip_indent)
+            == #{abs('Rakefile')} ==
+            W:  1:  1: Useless assignment to variable - x.
+
+            1 file inspected, 1 offense detected
+          END
       end
     end
 
@@ -128,7 +129,7 @@ describe RuboCop::CLI, :isolated_environment do
       expect(cli.run(['--format', 'simple', 'example.rb'])).to eq(0)
       expect($stdout.string)
         .to eq(<<-END.strip_indent)
-          
+
           1 file inspected, no offenses detected
         END
     end
@@ -156,7 +157,7 @@ describe RuboCop::CLI, :isolated_environment do
         expect(cli.run(['--format', 'simple', 'example.rb'])).to eq(0)
         expect($stdout.string)
           .to eq(<<-END.strip_indent)
-            
+
             1 file inspected, no offenses detected
           END
       end
@@ -205,8 +206,9 @@ describe RuboCop::CLI, :isolated_environment do
     create_file('example.rb', ["# #{'f9'.hex.chr}#{'29'.hex.chr}"])
     expect(cli.run(['--format', 'emacs', 'example.rb'])).to eq(1)
     expect($stdout.string)
-      .to eq(["#{abs('example.rb')}:1:1: F: Invalid byte sequence in utf-8.",
-              ''].join("\n"))
+      .to eq(<<-END.strip_indent)
+        #{abs('example.rb')}:1:1: F: Invalid byte sequence in utf-8.
+      END
   end
 
   context 'when errors are raised while processing files due to bugs' do
@@ -261,7 +263,7 @@ describe RuboCop::CLI, :isolated_environment do
         END
         expect(cli.run(['--format', 'offenses', '-a', 'example.rb'])).to eq(0)
         expect($stdout.string).to eq(<<-END.strip_indent)
-          
+
           1  Style/EmptyLineAfterMagicComment
           1  Style/FrozenStringLiteralComment
           --
@@ -320,8 +322,9 @@ describe RuboCop::CLI, :isolated_environment do
                    'Style/NumericLiterals'])
       expect(cli.run(['--format', 'emacs', 'example.rb'])).to eq(1)
       expect($stdout.string)
-        .to eq(["#{abs('example.rb')}:2:81: C: Line is too long. [95/80]",
-                ''].join("\n"))
+        .to eq(<<-END.strip_indent)
+          #{abs('example.rb')}:2:81: C: Line is too long. [95/80]
+        END
     end
 
     context 'without using namespace' do
@@ -332,8 +335,9 @@ describe RuboCop::CLI, :isolated_environment do
                      'y("123") # rubocop:disable StringLiterals'])
         expect(cli.run(['--format', 'emacs', 'example.rb'])).to eq(1)
         expect($stdout.string)
-          .to eq(["#{abs('example.rb')}:2:81: C: Line is too long. [95/80]",
-                  ''].join("\n"))
+          .to eq(<<-END.strip_indent)
+            #{abs('example.rb')}:2:81: C: Line is too long. [95/80]
+          END
       end
     end
 
@@ -372,12 +376,13 @@ describe RuboCop::CLI, :isolated_environment do
                          '# rubocop:disable all',
                          'a' * 10 + ' # rubocop:disable LineLength,ClassLength',
                          'y(123) # rubocop:disable all'])
-            create_file('.rubocop.yml', config.join("\n"))
+            create_file('.rubocop.yml', config)
             expect(cli.run(['--format', 'emacs'])).to eq(1)
             expect($stderr.string).to eq('')
             expect($stdout.string)
-              .to eq(["#{abs('example.rb')}:1:81: C: Line is too long. [95/80]",
-                      ''].join("\n"))
+              .to eq(<<-END.strip_indent)
+                #{abs('example.rb')}:1:81: C: Line is too long. [95/80]
+              END
           end
         end
       end
@@ -472,14 +477,15 @@ describe RuboCop::CLI, :isolated_environment do
     context 'via the config' do
       before do
         create_file('example.rb', 'do_something or raise')
-        create_file('.rubocop.yml',
-                    ['AllCops:',
-                     "  StyleGuideCopsOnly: #{guide_cops_only}",
-                     "  DisabledByDefault: #{disabled_by_default}",
-                     'Metrics/LineLength:',
-                     '  Enabled: true',
-                     '  StyleGuide: ~',
-                     '  Max: 2'])
+        create_file('.rubocop.yml', <<-END.strip_indent)
+          AllCops:
+            StyleGuideCopsOnly: #{guide_cops_only}
+            DisabledByDefault: #{disabled_by_default}
+          Metrics/LineLength:
+            Enabled: true
+            StyleGuide: ~
+            Max: 2
+        END
       end
 
       describe 'AllCops/StyleGuideCopsOnly' do
@@ -491,10 +497,12 @@ describe RuboCop::CLI, :isolated_environment do
           it 'skips cops that have no link to a style guide' do
             expect(cli.run(['--format', 'offenses', 'example.rb'])).to eq(1)
 
-            expect($stdout.string.strip).to eq(<<-END.strip_indent)
+            expect($stdout.string).to eq(<<-END.strip_indent)
+
               1  Style/AndOr
               --
               1  Total
+
             END
           end
         end
@@ -505,11 +513,13 @@ describe RuboCop::CLI, :isolated_environment do
           it 'runs cops for rules regardless of any link to the style guide' do
             expect(cli.run(['--format', 'offenses', 'example.rb'])).to eq(1)
 
-            expect($stdout.string.strip).to eq(<<-END.strip_indent)
+            expect($stdout.string).to eq(<<-END.strip_indent)
+
               1  Metrics/LineLength
               1  Style/AndOr
               --
               2  Total
+
             END
           end
         end
@@ -524,10 +534,12 @@ describe RuboCop::CLI, :isolated_environment do
           it 'runs only the cop configured in .rubocop.yml' do
             expect(cli.run(['--format', 'offenses', 'example.rb'])).to eq(1)
 
-            expect($stdout.string.strip).to eq(<<-END.strip_indent)
+            expect($stdout.string).to eq(<<-END.strip_indent)
+
               1  Metrics/LineLength
               --
               1  Total
+
             END
           end
         end
@@ -538,11 +550,13 @@ describe RuboCop::CLI, :isolated_environment do
           it 'runs all cops that are enabled in default configuration' do
             expect(cli.run(['--format', 'offenses', 'example.rb'])).to eq(1)
 
-            expect($stdout.string.strip).to eq(<<-END.strip_indent)
+            expect($stdout.string).to eq(<<-END.strip_indent)
+
               1  Metrics/LineLength
               1  Style/AndOr
               --
               2  Total
+
             END
           end
         end
@@ -704,7 +718,7 @@ describe RuboCop::CLI, :isolated_environment do
             EnforcedStyle: rails
         END
         create_file('example.rb', <<-END.strip_indent)
-          
+
           # A feline creature
           class Cat
             def meow
@@ -738,29 +752,31 @@ describe RuboCop::CLI, :isolated_environment do
             Style/IndentationConsistency:
               EnforcedStyle: rails
           END
-          create_file('example.rb', ['',
-                                     '# A feline creature',
-                                     "#{parent} Cat",
-                                     '  def meow',
-                                     "    puts('Meow!')",
-                                     '  end',
-                                     '',
-                                     '  protected',
-                                     '',
-                                     '  def can_we_be_friends?(another_cat)',
-                                     '    some_logic(another_cat)',
-                                     '  end',
-                                     '',
-                                     '  private',
-                                     '',
-                                     '  def meow_at_3am?',
-                                     '    rand < 0.8',
-                                     '  end',
-                                     '',
-                                     '  def meow_at_4am?',
-                                     '    rand < 0.8',
-                                     '  end',
-                                     'end'])
+          create_file('example.rb', <<-END.strip_indent)
+
+            # A feline creature
+            #{parent} Cat
+              def meow
+                puts('Meow!')
+              end
+
+              protected
+
+              def can_we_be_friends?(another_cat)
+                some_logic(another_cat)
+              end
+
+              private
+
+              def meow_at_3am?
+                rand < 0.8
+              end
+
+              def meow_at_4am?
+                rand < 0.8
+              end
+            end
+          END
           result = cli.run(%w[--format simple])
           expect($stderr.string).to eq('')
           expect(result).to eq(1)
@@ -931,11 +947,13 @@ describe RuboCop::CLI, :isolated_environment do
       END
 
       expect(cli.run([])).to eq(1)
-      expect($stdout.string.strip)
+      expect($stdout.string)
         .to eq(<<-END.strip_indent)
+
           1  Style/TrailingWhitespace
           --
           1  Total
+
         END
     end
 
@@ -1023,7 +1041,7 @@ describe RuboCop::CLI, :isolated_environment do
       expect($stderr.string).to eq('')
       expect($stdout.string)
         .to eq(<<-END.strip_indent)
-          
+
           0 files inspected, no offenses detected
         END
     end

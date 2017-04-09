@@ -11,10 +11,13 @@ describe RuboCop::Cop::Style::IfUnlessModifier do
 
   context 'multiline if that fits on one line' do
     let(:source) do
-      ["if #{condition}",
-       "  #{body}",
-       '', # Empty lines should make no difference.
-       'end']
+       # Empty lines should make no difference.
+      <<-END.strip_indent
+        if #{condition}
+          #{body}
+
+        end
+      END
     end
 
     let(:condition) { 'a' * 38 }
@@ -35,7 +38,7 @@ describe RuboCop::Cop::Style::IfUnlessModifier do
 
     it 'does auto-correction' do
       corrected = autocorrect_source(cop, source)
-      expect(corrected).to eq "#{body} if #{condition}"
+      expect(corrected).to eq "#{body} if #{condition}\n"
     end
 
     context 'and has two statements separated by semicolon' do
@@ -205,11 +208,11 @@ describe RuboCop::Cop::Style::IfUnlessModifier do
 
   context 'with implicit match conditional' do
     let(:source) do
-      [
-        "  if #{conditional}",
-        "    #{body}",
-        '  end'
-      ]
+      <<-END.strip_margin('|')
+        |  if #{conditional}
+        |    #{body}
+        |  end
+      END
     end
 
     let(:body) { 'b' * 36 }
@@ -226,7 +229,7 @@ describe RuboCop::Cop::Style::IfUnlessModifier do
 
       it 'does auto-correction' do
         corrected = autocorrect_source(cop, source)
-        expect(corrected).to eq "  #{body} if #{conditional}"
+        expect(corrected).to eq "  #{body} if #{conditional}\n"
       end
     end
 

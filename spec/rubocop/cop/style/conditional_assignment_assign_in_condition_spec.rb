@@ -17,24 +17,28 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
     end
 
     it 'registers an offense assigning any variable type to if else' do
-      source = ["#{variable} = if foo",
-                '                1',
-                '              else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = if foo
+                        1
+                      else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::ASSIGN_TO_CONDITION_MSG])
     end
 
     it 'registers an offense assigning any variable type to if elsif else' do
-      source = ["#{variable} = if foo",
-                '                1',
-                '              elsif baz',
-                '                2',
-                '              else',
-                '                3',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = if foo
+                        1
+                      elsif baz
+                        2
+                      else
+                        3
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::ASSIGN_TO_CONDITION_MSG])
@@ -42,11 +46,13 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
     it 'registers an offense assigning any variable type to if else' \
       'with multiple assignment' do
-      source = ["#{variable}, #{variable} = if foo",
-                '                something',
-                '              else',
-                '                something_else',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable}, #{variable} = if foo
+                        something
+                      else
+                        something_else
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::ASSIGN_TO_CONDITION_MSG])
@@ -54,88 +60,104 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
     it 'allows assigning any variable type inside if else' \
       'with multiple assignment' do
-      source = ['if foo',
-                "  #{variable}, #{variable} = something",
-                'else',
-                "  #{variable}, #{variable} = something_else",
-                'end']
+      source = <<-END.strip_indent
+        if foo
+          #{variable}, #{variable} = something
+        else
+          #{variable}, #{variable} = something_else
+        end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to be_empty
     end
 
     it 'allows assigning any variable type inside if else' do
-      source = ['if foo',
-                "  #{variable} = 1",
-                'else',
-                "  #{variable} = 2",
-                'end']
+      source = <<-END.strip_indent
+        if foo
+          #{variable} = 1
+        else
+          #{variable} = 2
+        end
+      END
       inspect_source(cop, source)
 
       expect(cop.offenses).to be_empty
     end
 
     it 'allows assignment to if without else' do
-      source = ["#{variable} = if foo",
-                '                1',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = if foo
+                        1
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.offenses).to be_empty
     end
 
     it 'registers an offense assigning any variable type to unless else' do
-      source = ["#{variable} = unless foo",
-                '                1',
-                '              else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = unless foo
+                        1
+                      else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::ASSIGN_TO_CONDITION_MSG])
     end
 
     it 'allows assigning any variable type inside unless else' do
-      source = ['unless foo',
-                "  #{variable} = 1",
-                'else',
-                "  #{variable} = 2",
-                'end']
+      source = <<-END.strip_indent
+        unless foo
+          #{variable} = 1
+        else
+          #{variable} = 2
+        end
+      END
       inspect_source(cop, source)
 
       expect(cop.offenses).to be_empty
     end
 
     it 'registers an offense for assigning any variable type to case when' do
-      source = ["#{variable} = case foo",
-                '              when "a"',
-                '                1',
-                '              else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = case foo
+                      when "a"
+                        1
+                      else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::ASSIGN_TO_CONDITION_MSG])
     end
 
     it 'allows assigning any variable type inside case when' do
-      source = ['case foo',
-                'when "a"',
-                "  #{variable} = 1",
-                'else',
-                "  #{variable} = 2",
-                'end']
+      source = <<-END.strip_indent
+        case foo
+        when "a"
+          #{variable} = 1
+        else
+          #{variable} = 2
+        end
+      END
       inspect_source(cop, source)
 
       expect(cop.offenses).to be_empty
     end
 
     it 'does not crash for rescue assignment' do
-      source = ['begin',
-                '  foo',
-                "rescue => #{variable}",
-                '  bar',
-                'end']
+      source = <<-END.strip_indent
+        begin
+          foo
+        rescue => #{variable}
+          bar
+        end
+      END
       inspect_source(cop, source)
 
       expect(cop.offenses).to be_empty
@@ -149,58 +171,70 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
       end
 
       it 'corrects assigning any variable type to if elsif else' do
-        source = ["#{variable} = if foo",
-                  '                1',
-                  '              elsif baz',
-                  '                2',
-                  '              else',
-                  '                3',
-                  '              end']
+        source = <<-END.strip_indent
+          #{variable} = if foo
+                          1
+                        elsif baz
+                          2
+                        else
+                          3
+                        end
+        END
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(['if foo',
-                                  "  #{variable} = 1",
-                                  'elsif baz',
-                                  "  #{variable} = 2",
-                                  'else',
-                                  "  #{variable} = 3",
-                                  'end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          if foo
+            #{variable} = 1
+          elsif baz
+            #{variable} = 2
+          else
+            #{variable} = 3
+          end
+        END
       end
 
       it 'corrects assigning any variable type to unless else' do
-        source = ["#{variable} = unless foo",
-                  '                1',
-                  '              else',
-                  '                2',
-                  '              end']
+        source = <<-END.strip_indent
+          #{variable} = unless foo
+                          1
+                        else
+                          2
+                        end
+        END
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(['unless foo',
-                                  "  #{variable} = 1",
-                                  'else',
-                                  "  #{variable} = 2",
-                                  'end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          unless foo
+            #{variable} = 1
+          else
+            #{variable} = 2
+          end
+        END
       end
 
       it 'corrects assigning any variable type to case when' do
-        source = ["#{variable} = case foo",
-                  '              when "a"',
-                  '                1',
-                  '              when "b"',
-                  '                2',
-                  '              else',
-                  '                3',
-                  '              end']
+        source = <<-END.strip_indent
+          #{variable} = case foo
+                        when "a"
+                          1
+                        when "b"
+                          2
+                        else
+                          3
+                        end
+        END
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(['case foo',
-                                  'when "a"',
-                                  "  #{variable} = 1",
-                                  'when "b"',
-                                  "  #{variable} = 2",
-                                  'else',
-                                  "  #{variable} = 3",
-                                  'end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          case foo
+          when "a"
+            #{variable} = 1
+          when "b"
+            #{variable} = 2
+          else
+            #{variable} = 3
+          end
+        END
       end
     end
   end
@@ -213,43 +247,51 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
     end
 
     it 'registers an offense any assignment to if else' do
-      source = ["bar #{assignment} if foo",
-                '                1',
-                '              else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        bar #{assignment} if foo
+                        1
+                      else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::ASSIGN_TO_CONDITION_MSG])
     end
 
     it 'allows any assignment to if without else' do
-      source = ["bar #{assignment} if foo",
-                '                1',
-                '              end']
+      source = <<-END.strip_indent
+        bar #{assignment} if foo
+                        1
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.offenses).to be_empty
     end
 
     it 'registers an offense for any assignment to unless else' do
-      source = ["bar #{assignment} unless foo",
-                '                1',
-                '              else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        bar #{assignment} unless foo
+                        1
+                      else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::ASSIGN_TO_CONDITION_MSG])
     end
 
     it 'registers an offense any assignment to case when' do
-      source = ["bar #{assignment} case foo",
-                '              when "a"',
-                '                1',
-                '              else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        bar #{assignment} case foo
+                      when "a"
+                        1
+                      else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq([described_class::ASSIGN_TO_CONDITION_MSG])
@@ -264,63 +306,77 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
       end
 
       it 'corrects any assignment to if else' do
-        source = ["bar #{assignment} if foo",
-                  '                1',
-                  '              else',
-                  '                2',
-                  '              end']
+        source = <<-END.strip_indent
+          bar #{assignment} if foo
+                          1
+                        else
+                          2
+                        end
+        END
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(['if foo',
-                                  "  bar #{assignment} 1",
-                                  'else',
-                                  "  bar #{assignment} 2",
-                                  'end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          if foo
+            bar #{assignment} 1
+          else
+            bar #{assignment} 2
+          end
+        END
       end
 
       it 'corrects any assignment to unless else' do
-        source = ["bar #{assignment} unless foo",
-                  '                1',
-                  '              else',
-                  '                2',
-                  '              end']
+        source = <<-END.strip_indent
+          bar #{assignment} unless foo
+                          1
+                        else
+                          2
+                        end
+        END
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(['unless foo',
-                                  "  bar #{assignment} 1",
-                                  'else',
-                                  "  bar #{assignment} 2",
-                                  'end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          unless foo
+            bar #{assignment} 1
+          else
+            bar #{assignment} 2
+          end
+        END
       end
 
       it 'corrects any assignment to case when' do
-        source = ["bar #{assignment} case foo",
-                  '              when "a"',
-                  '                1',
-                  '              else',
-                  '                2',
-                  '              end']
+        source = <<-END.strip_indent
+          bar #{assignment} case foo
+                        when "a"
+                          1
+                        else
+                          2
+                        end
+        END
         new_source = autocorrect_source(cop, source)
 
-        expect(new_source).to eq(['case foo',
-                                  'when "a"',
-                                  "  bar #{assignment} 1",
-                                  'else',
-                                  "  bar #{assignment} 2",
-                                  'end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          case foo
+          when "a"
+            bar #{assignment} 1
+          else
+            bar #{assignment} 2
+          end
+        END
       end
     end
   end
 
   shared_examples 'multiline all variable types' do |variable, expected|
     it 'assigning any variable type to a multiline if else' do
-      source = ["#{variable} = if foo",
-                '                something',
-                '                1',
-                '              else',
-                '                something_else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = if foo
+                        something
+                        1
+                      else
+                        something_else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq(expected)
@@ -328,58 +384,66 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
     it 'assigning any variable type to an if else with multiline ' \
        'in one branch' do
-      source = ["#{variable} = if foo",
-                '                1',
-                '              else',
-                '                something_else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = if foo
+                        1
+                      else
+                        something_else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq(expected)
     end
 
     it 'assigning any variable type to a multiline if elsif else' do
-      source = ["#{variable} = if foo",
-                '                something',
-                '                1',
-                '              elsif',
-                '                something_other',
-                '                2',
-                '              elsif',
-                '                something_other_again',
-                '                3',
-                '              else',
-                '                something_else',
-                '                4',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = if foo
+                        something
+                        1
+                      elsif
+                        something_other
+                        2
+                      elsif
+                        something_other_again
+                        3
+                      else
+                        something_else
+                        4
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq(expected)
     end
 
     it 'assigning any variable type to a multiline unless else' do
-      source = ["#{variable} = unless foo",
-                '                something',
-                '                1',
-                '              else',
-                '                something_else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = unless foo
+                        something
+                        1
+                      else
+                        something_else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq(expected)
     end
 
     it 'assigning any variable type to a multiline case when' do
-      source = ["#{variable} = case foo",
-                '              when "a"',
-                '                something',
-                '                1',
-                '              else',
-                '                something_else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        #{variable} = case foo
+                      when "a"
+                        something
+                        1
+                      else
+                        something_else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq(expected)
@@ -388,40 +452,46 @@ describe RuboCop::Cop::Style::ConditionalAssignment do
 
   shared_examples 'multiline all assignment types' do |assignment, expected|
     it 'any assignment to a multiline if else' do
-      source = ["bar #{assignment} if foo",
-                '                something',
-                '                1',
-                '              else',
-                '                something_else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        bar #{assignment} if foo
+                        something
+                        1
+                      else
+                        something_else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq(expected)
     end
 
     it 'any assignment to a multiline unless else' do
-      source = ["bar #{assignment} unless foo",
-                '                something',
-                '                1',
-                '              else',
-                '                something_else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        bar #{assignment} unless foo
+                        something
+                        1
+                      else
+                        something_else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq(expected)
     end
 
     it 'any assignment to a multiline case when' do
-      source = ["bar #{assignment} case foo",
-                '              when "a"',
-                '                something',
-                '                1',
-                '              else',
-                '                something_else',
-                '                2',
-                '              end']
+      source = <<-END.strip_indent
+        bar #{assignment} case foo
+                      when "a"
+                        something
+                        1
+                      else
+                        something_else
+                        2
+                      end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages).to eq(expected)

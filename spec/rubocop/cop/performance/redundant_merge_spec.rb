@@ -167,32 +167,40 @@ describe RuboCop::Cop::Performance::RedundantMerge, :config do
       it "autocorrects it to an #{kw} block" do
         new_source = autocorrect_source(
           cop,
-          ['hash = {}',
-           "hash.merge!(a: 1, b: 2) #{kw} condition1 && condition2"]
+          <<-END.strip_indent
+            hash = {}
+            hash.merge!(a: 1, b: 2) #{kw} condition1 && condition2
+          END
         )
-        expect(new_source).to eq(['hash = {}',
-                                  "#{kw} condition1 && condition2",
-                                  '  hash[:a] = 1',
-                                  '  hash[:b] = 2',
-                                  'end'].join("\n"))
+        expect(new_source).to eq(<<-END.strip_indent)
+          hash = {}
+          #{kw} condition1 && condition2
+            hash[:a] = 1
+            hash[:b] = 2
+          end
+        END
       end
 
       context 'when original code was indented' do
         it 'maintains proper indentation' do
           new_source = autocorrect_source(
             cop,
-            ['hash = {}',
-             'begin',
-             "  hash.merge!(a: 1, b: 2) #{kw} condition1",
-             'end']
+            <<-END.strip_indent
+              hash = {}
+              begin
+                hash.merge!(a: 1, b: 2) #{kw} condition1
+              end
+            END
           )
-          expect(new_source).to eq(['hash = {}',
-                                    'begin',
-                                    "  #{kw} condition1",
-                                    '    hash[:a] = 1',
-                                    '    hash[:b] = 2',
-                                    '  end',
-                                    'end'].join("\n"))
+          expect(new_source).to eq(<<-END.strip_indent)
+            hash = {}
+            begin
+              #{kw} condition1
+                hash[:a] = 1
+                hash[:b] = 2
+              end
+            end
+          END
         end
       end
     end

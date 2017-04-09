@@ -5,22 +5,28 @@ describe RuboCop::Cop::Lint::FormatParameterMismatch do
 
   shared_examples 'variables' do |variable|
     it 'does not register an offense for % called on a variable' do
-      inspect_source(cop, ["#{variable} = '%s'",
-                           "#{variable} % [foo]"])
+      inspect_source(cop, <<-END.strip_indent)
+        #{variable} = '%s'
+        #{variable} % [foo]
+      END
 
       expect(cop.messages).to be_empty
     end
 
     it 'does not register an offense for format called on a variable' do
-      inspect_source(cop, ["#{variable} = '%s'",
-                           "format(#{variable}, foo)"])
+      inspect_source(cop, <<-END.strip_indent)
+        #{variable} = '%s'
+        format(#{variable}, foo)
+      END
 
       expect(cop.messages).to be_empty
     end
 
     it 'does not register an offense for format called on a variable' do
-      inspect_source(cop, ["#{variable} = '%s'",
-                           "sprintf(#{variable}, foo)"])
+      inspect_source(cop, <<-END.strip_indent)
+        #{variable} = '%s'
+        sprintf(#{variable}, foo)
+      END
 
       expect(cop.messages).to be_empty
     end

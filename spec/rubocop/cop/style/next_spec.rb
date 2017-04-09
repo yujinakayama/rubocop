@@ -8,198 +8,238 @@ describe RuboCop::Cop::Style::Next, :config do
     let(:opposite) { condition == 'if' ? 'unless' : 'if' }
 
     it "registers an offense for #{condition} inside of downto" do
-      inspect_source(cop, ['3.downto(1) do',
-                           "  #{condition} o == 1",
-                           '    puts o',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        3.downto(1) do
+          #{condition} o == 1
+            puts o
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "autocorrects #{condition} inside of downto" do
-      new_source = autocorrect_source(cop, ['3.downto(1) do',
-                                            "  #{condition} o == 1",
-                                            '    puts o',
-                                            '  end',
-                                            'end'])
-      expect(new_source).to eq(['3.downto(1) do',
-                                "  next #{opposite} o == 1",
-                                '  puts o',
-                                'end'].join("\n"))
+      new_source = autocorrect_source(cop, <<-END.strip_indent)
+        3.downto(1) do
+          #{condition} o == 1
+            puts o
+          end
+        end
+      END
+      expect(new_source).to eq(<<-END.strip_indent)
+        3.downto(1) do
+          next #{opposite} o == 1
+          puts o
+        end
+      END
     end
 
     it "registers an offense for #{condition} inside of each" do
-      inspect_source(cop, ['[].each do |o|',
-                           "  #{condition} o == 1",
-                           '    puts o',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].each do |o|
+          #{condition} o == 1
+            puts o
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "autocorrects #{condition} inside of each" do
-      new_source = autocorrect_source(cop, ['[].each do |o|',
-                                            "  #{condition} o == 1",
-                                            '    puts o',
-                                            '  end',
-                                            'end'])
-      expect(new_source).to eq(['[].each do |o|',
-                                "  next #{opposite} o == 1",
-                                '  puts o',
-                                'end'].join("\n"))
+      new_source = autocorrect_source(cop, <<-END.strip_indent)
+        [].each do |o|
+          #{condition} o == 1
+            puts o
+          end
+        end
+      END
+      expect(new_source).to eq(<<-END.strip_indent)
+        [].each do |o|
+          next #{opposite} o == 1
+          puts o
+        end
+      END
     end
 
     it "registers an offense for #{condition} inside of each_with_object" do
-      inspect_source(cop, ['[].each_with_object({}) do |o, a|',
-                           "  #{condition} o == 1",
-                           '    a[o] = {}',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].each_with_object({}) do |o, a|
+          #{condition} o == 1
+            a[o] = {}
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "registers an offense for #{condition} inside of for" do
-      inspect_source(cop, ['for o in 1..3 do',
-                           "  #{condition} o == 1",
-                           '    puts o',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        for o in 1..3 do
+          #{condition} o == 1
+            puts o
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "autocorrects #{condition} inside of for" do
-      new_source = autocorrect_source(cop, ['for o in 1..3 do',
-                                            "  #{condition} o == 1",
-                                            '    puts o',
-                                            '  end',
-                                            'end'])
-      expect(new_source).to eq(['for o in 1..3 do',
-                                "  next #{opposite} o == 1",
-                                '  puts o',
-                                'end'].join("\n"))
+      new_source = autocorrect_source(cop, <<-END.strip_indent)
+        for o in 1..3 do
+          #{condition} o == 1
+            puts o
+          end
+        end
+      END
+      expect(new_source).to eq(<<-END.strip_indent)
+        for o in 1..3 do
+          next #{opposite} o == 1
+          puts o
+        end
+      END
     end
 
     it "registers an offense for #{condition} inside of loop" do
-      inspect_source(cop, ['loop do',
-                           "  #{condition} o == 1",
-                           '    puts o',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        loop do
+          #{condition} o == 1
+            puts o
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "registers an offense for #{condition} inside of map" do
-      inspect_source(cop, ['loop do',
-                           '  {}.map do |k, v|',
-                           "    #{condition} v == 1",
-                           '      puts k',
-                           '    end',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        loop do
+          {}.map do |k, v|
+            #{condition} v == 1
+              puts k
+            end
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} v == 1"])
     end
 
     it "registers an offense for #{condition} inside of times" do
-      inspect_source(cop, ['loop do',
-                           '  3.times do |o|',
-                           "    #{condition} o == 1",
-                           '      puts o',
-                           '    end',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        loop do
+          3.times do |o|
+            #{condition} o == 1
+              puts o
+            end
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "registers an offense for #{condition} inside of collect" do
-      inspect_source(cop, ['[].collect do |o|',
-                           "  #{condition} o == 1",
-                           '    true',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].collect do |o|
+          #{condition} o == 1
+            true
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "registers an offense for #{condition} inside of select" do
-      inspect_source(cop, ['[].select do |o|',
-                           "  #{condition} o == 1",
-                           '    true',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].select do |o|
+          #{condition} o == 1
+            true
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "registers an offense for #{condition} inside of select!" do
-      inspect_source(cop, ['[].select! do |o|',
-                           "  #{condition} o == 1",
-                           '    true',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].select! do |o|
+          #{condition} o == 1
+            true
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "registers an offense for #{condition} inside of reject" do
-      inspect_source(cop, ['[].reject do |o|',
-                           "  #{condition} o == 1",
-                           '    true',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].reject do |o|
+          #{condition} o == 1
+            true
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "registers an offense for #{condition} inside of reject!" do
-      inspect_source(cop, ['[].reject! do |o|',
-                           "  #{condition} o == 1",
-                           '    true',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].reject! do |o|
+          #{condition} o == 1
+            true
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "registers an offense for #{condition} inside of nested iterators" do
-      inspect_source(cop, ['loop do',
-                           '  until false',
-                           "    #{condition} o == 1",
-                           '      puts o',
-                           '    end',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        loop do
+          until false
+            #{condition} o == 1
+              puts o
+            end
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it "registers an offense for #{condition} inside of nested iterators" do
-      inspect_source(cop, ['loop do',
-                           '  while true',
-                           "    #{condition} o == 1",
-                           '      puts o',
-                           '    end',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        loop do
+          while true
+            #{condition} o == 1
+              puts o
+            end
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
@@ -207,83 +247,97 @@ describe RuboCop::Cop::Style::Next, :config do
 
     it 'registers an offense for a condition at the end of an iterator ' \
        'when there is more in the iterator than the condition' do
-      inspect_source(cop, ['[].each do |o|',
-                           '  puts o',
-                           "  #{condition} o == 1",
-                           '    puts o',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].each do |o|
+          puts o
+          #{condition} o == 1
+            puts o
+          end
+        end
+      END
 
       expect(cop.messages).to eq(['Use `next` to skip iteration.'])
       expect(cop.highlights).to eq(["#{condition} o == 1"])
     end
 
     it 'allows loops with conditional break' do
-      inspect_source(cop, ['loop do',
-                           "  puts ''",
-                           "  break #{condition} o == 1",
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        loop do
+          puts ''
+          break #{condition} o == 1
+        end
+      END
 
       expect(cop.offenses).to be_empty
     end
 
     it 'allows loops with conditional return' do
-      inspect_source(cop, ['loop do',
-                           "  puts ''",
-                           "  return #{condition} o == 1",
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        loop do
+          puts ''
+          return #{condition} o == 1
+        end
+      END
 
       expect(cop.offenses).to be_empty
     end
 
     it "allows loops with #{condition} being the entire body with else" do
-      inspect_source(cop, ['[].each do |o|',
-                           "  #{condition} o == 1",
-                           '    puts o',
-                           '  else',
-                           "    puts 'no'",
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].each do |o|
+          #{condition} o == 1
+            puts o
+          else
+            puts 'no'
+          end
+        end
+      END
 
       expect(cop.offenses).to be_empty
     end
 
     it "allows loops with #{condition} with else, nested in another " \
        'condition' do
-      inspect_source(cop, ['[].each do |o|',
-                           '  if foo',
-                           "    #{condition} o == 1",
-                           '      puts o',
-                           '    else',
-                           "      puts 'no'",
-                           '    end',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].each do |o|
+          if foo
+            #{condition} o == 1
+              puts o
+            else
+              puts 'no'
+            end
+          end
+        end
+      END
 
       expect(cop.offenses).to be_empty
     end
 
     it "allows loops with #{condition} with else at the end" do
-      inspect_source(cop, ['[].each do |o|',
-                           '  puts o',
-                           "  #{condition} o == 1",
-                           '    puts o',
-                           '  else',
-                           "    puts 'no'",
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        [].each do |o|
+          puts o
+          #{condition} o == 1
+            puts o
+          else
+            puts 'no'
+          end
+        end
+      END
 
       expect(cop.offenses).to be_empty
     end
 
     it "reports an offense for #{condition} whose body has 3 lines" do
-      inspect_source(cop, ['arr.each do |e|',
-                           "  #{condition} something",
-                           '    work',
-                           '    work',
-                           '    work',
-                           '  end',
-                           'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        arr.each do |e|
+          #{condition} something
+            work
+            work
+            work
+          end
+        end
+      END
 
       expect(cop.offenses.size).to eq(1)
       expect(cop.highlights).to eq(["#{condition} something"])
@@ -295,9 +349,11 @@ describe RuboCop::Cop::Style::Next, :config do
       end
 
       it "allows modifier #{condition}" do
-        inspect_source(cop, ['[].each do |o|',
-                             "  puts o #{condition} o == 1",
-                             'end'])
+        inspect_source(cop, <<-END.strip_indent)
+          [].each do |o|
+            puts o #{condition} o == 1
+          end
+        END
 
         expect(cop.offenses).to be_empty
       end
@@ -309,9 +365,11 @@ describe RuboCop::Cop::Style::Next, :config do
       end
       let(:opposite) { condition == 'if' ? 'unless' : 'if' }
       let(:source) do
-        ['[].each do |o|',
-         "  puts o #{condition} o == 1 # comment",
-         'end']
+        <<-END.strip_indent
+          [].each do |o|
+            puts o #{condition} o == 1 # comment
+          end
+        END
       end
 
       it "registers an offense for modifier #{condition}" do
@@ -323,10 +381,12 @@ describe RuboCop::Cop::Style::Next, :config do
 
       it "auto-corrects modifier #{condition}" do
         corrected = autocorrect_source(cop, source)
-        expect(corrected).to eq(['[].each do |o|',
-                                 "  next #{opposite} o == 1",
-                                 '  puts o # comment',
-                                 'end'].join("\n"))
+        expect(corrected).to eq(<<-END.strip_indent)
+          [].each do |o|
+            next #{opposite} o == 1
+            puts o # comment
+          end
+        END
       end
     end
   end

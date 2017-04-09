@@ -71,10 +71,11 @@ module RuboCop
 
             formatter.report_file('test', cop.offenses)
             expect(output.string)
-              .to eq ['test:1:14: C: message 1',
-                      "do_something([this, #{described_class::ELLIPSES}",
-                      '             ^^^^^^',
-                      ''].join("\n")
+              .to eq <<-END.strip_indent
+                test:1:14: C: message 1
+                do_something([this, #{described_class::ELLIPSES}
+                             ^^^^^^
+              END
           end
         end
 

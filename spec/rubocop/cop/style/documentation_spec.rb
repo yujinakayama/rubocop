@@ -222,26 +222,28 @@ describe RuboCop::Cop::Style::Documentation do
   context 'sparse and trailing comments' do
     %w[class module].each do |keyword|
       it "ignores comments after #{keyword} node end" do
-        inspect_source(cop,
-                       ['module TestModule',
-                        '  # documentation comment',
-                        "  #{keyword} Test",
-                        '    def method',
-                        '    end',
-                        '  end # decorating comment',
-                        'end'])
+        inspect_source(cop, <<-END.strip_indent)
+          module TestModule
+            # documentation comment
+            #{keyword} Test
+              def method
+              end
+            end # decorating comment
+          end
+        END
         expect(cop.offenses).to be_empty
       end
 
       it "ignores sparse comments inside #{keyword} node" do
-        inspect_source(cop,
-                       ['module TestModule',
-                        "  #{keyword} Test",
-                        '    def method',
-                        '    end',
-                        '    # sparse comment',
-                        '  end',
-                        'end'])
+        inspect_source(cop, <<-END.strip_indent)
+          module TestModule
+            #{keyword} Test
+              def method
+              end
+              # sparse comment
+            end
+          end
+        END
         expect(cop.offenses.size).to eq(1)
       end
     end
@@ -250,37 +252,40 @@ describe RuboCop::Cop::Style::Documentation do
   context 'with # :nodoc:' do
     %w[class module].each do |keyword|
       it "accepts non-namespace #{keyword} without documentation" do
-        inspect_source(cop,
-                       ["#{keyword} Test #:nodoc:",
-                        '  def method',
-                        '  end',
-                        'end'])
+        inspect_source(cop, <<-END.strip_indent)
+          #{keyword} Test #:nodoc:
+            def method
+            end
+          end
+        END
         expect(cop.offenses).to be_empty
       end
 
       it "registers an offense for nested #{keyword} without documentation" do
-        inspect_source(cop,
-                       ['module TestModule #:nodoc:',
-                        '  TEST = 20',
-                        "  #{keyword} Test",
-                        '    def method',
-                        '    end',
-                        '  end',
-                        'end'])
+        inspect_source(cop, <<-END.strip_indent)
+          module TestModule #:nodoc:
+            TEST = 20
+            #{keyword} Test
+              def method
+              end
+            end
+          end
+        END
         expect(cop.offenses.size).to eq(1)
       end
 
       context 'with `all` modifier' do
         it "accepts nested #{keyword} without documentation" do
-          inspect_source(cop,
-                         ['module A #:nodoc: all',
-                          '  module B',
-                          '    TEST = 20',
-                          "    #{keyword} Test",
-                          '      TEST = 20',
-                          '    end',
-                          '  end',
-                          'end'])
+          inspect_source(cop, <<-END.strip_indent)
+            module A #:nodoc: all
+              module B
+                TEST = 20
+                #{keyword} Test
+                  TEST = 20
+                end
+              end
+            end
+          END
           expect(cop.offenses).to be_empty
         end
       end

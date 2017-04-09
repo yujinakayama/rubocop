@@ -5,19 +5,21 @@ describe RuboCop::Cop::Lint::Void do
 
   described_class::OPS.each do |op|
     it "registers an offense for void op #{op} if not on last line" do
-      inspect_source(cop,
-                     ["a #{op} b",
-                      "a #{op} b",
-                      "a #{op} b"])
+      inspect_source(cop, <<-END.strip_indent)
+        a #{op} b
+        a #{op} b
+        a #{op} b
+      END
       expect(cop.offenses.size).to eq(2)
     end
   end
 
   described_class::OPS.each do |op|
     it "accepts void op #{op} if on last line" do
-      inspect_source(cop,
-                     ['something',
-                      "a #{op} b"])
+      inspect_source(cop, <<-END.strip_indent)
+        something
+        a #{op} b
+      END
       expect(cop.offenses).to be_empty
     end
   end

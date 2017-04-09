@@ -67,9 +67,11 @@ describe RuboCop::Cop::Performance::Count do
     end
 
     it "registers an offense for #{selector} with params instead of a block" do
-      inspect_source(cop, ['Data = Struct.new(:value)',
-                           'array = [Data.new(2), Data.new(3), Data.new(2)]',
-                           "puts array.#{selector}(&:value).count"].join("\n"))
+      inspect_source(cop, <<-END.strip_indent)
+        Data = Struct.new(:value)
+        array = [Data.new(2), Data.new(3), Data.new(2)]
+        puts array.#{selector}(&:value).count
+      END
 
       expect(cop.messages)
         .to eq(["Use `count` instead of `#{selector}...count`."])
@@ -86,11 +88,13 @@ describe RuboCop::Cop::Performance::Count do
 
     it "registers an offense for #{selector}(&:something).count " \
        'when called as an instance method on its own class' do
-      source = ['class A < Array',
-                '  def count(&block)',
-                "    #{selector}(&block).count",
-                '  end',
-                'end']
+      source = <<-END.strip_indent
+        class A < Array
+          def count(&block)
+            #{selector}(&block).count
+          end
+        end
+      END
       inspect_source(cop, source)
 
       expect(cop.messages)

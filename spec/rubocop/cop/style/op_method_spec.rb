@@ -5,10 +5,11 @@ describe RuboCop::Cop::Style::OpMethod do
 
   %i[+ eql? equal?].each do |op|
     it "registers an offense for #{op} with arg not named other" do
-      inspect_source(cop,
-                     ["def #{op}(another)",
-                      '  another',
-                      'end'])
+      inspect_source(cop, <<-END.strip_indent)
+        def #{op}(another)
+          another
+        end
+      END
       expect(cop.offenses.size).to eq(1)
       expect(cop.messages)
         .to eq(["When defining the `#{op}` operator, " \
