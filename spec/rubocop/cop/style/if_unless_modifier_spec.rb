@@ -11,7 +11,7 @@ describe RuboCop::Cop::Style::IfUnlessModifier do
 
   context 'multiline if that fits on one line' do
     let(:source) do
-       # Empty lines should make no difference.
+      # Empty lines should make no difference.
       <<-END.strip_indent
         if #{condition}
           #{body}
