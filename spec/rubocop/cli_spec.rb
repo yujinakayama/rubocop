@@ -1332,11 +1332,14 @@ describe RuboCop::CLI, :isolated_environment do
     end
 
     it 'can exclude a typical vendor directory' do
-      create_file('vendor/bundle/ruby/1.9.1/gems/parser-2.0.0/.rubocop.yml', <<-END.strip_indent)
-        AllCops:
-          Exclude:
-            - lib/parser/lexer.rb
-      END
+      create_file(
+        'vendor/bundle/ruby/1.9.1/gems/parser-2.0.0/.rubocop.yml',
+        <<-END.strip_indent
+          AllCops:
+            Exclude:
+              - lib/parser/lexer.rb
+        END
+      )
 
       create_file('vendor/bundle/ruby/1.9.1/gems/parser-2.0.0/lib/ex.rb',
                   '#' * 90)
@@ -1391,11 +1394,14 @@ describe RuboCop::CLI, :isolated_environment do
     # but in configuration files with other names they will be relative to
     # whatever file inherits from them.
     it 'can exclude a vendor directory indirectly' do
-      create_file('vendor/bundle/ruby/1.9.1/gems/parser-2.0.0/.rubocop.yml', <<-END.strip_indent)
-        AllCops:
-          Exclude:
-            - lib/parser/lexer.rb
-      END
+      create_file(
+        'vendor/bundle/ruby/1.9.1/gems/parser-2.0.0/.rubocop.yml',
+        <<-END.strip_indent
+          AllCops:
+            Exclude:
+              - lib/parser/lexer.rb
+        END
+      )
 
       create_file('vendor/bundle/ruby/1.9.1/gems/parser-2.0.0/lib/ex.rb',
                   '#' * 90)

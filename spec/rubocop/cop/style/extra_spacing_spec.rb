@@ -155,7 +155,8 @@ describe RuboCop::Cop::Style::ExtraSpacing, :config do
       name    = "Jill"
     END
 
-    'lining up assignments with empty lines and comments in between' => <<-END.strip_indent,
+    'lining up assignments with empty lines and comments in between' =>
+    <<-END.strip_indent,
       a   += 1
 
       # Comment
@@ -187,7 +188,8 @@ describe RuboCop::Cop::Style::ExtraSpacing, :config do
       include_examples 'unaligned', "var = if",     'test'
     END
 
-    'aligning = on lines where there are trailing comments' => <<-END.strip_indent,
+    'aligning = on lines where there are trailing comments' =>
+    <<-END.strip_indent,
       a_long_var_name = 100 # this is 100
       short_name1     = 2
 
@@ -210,7 +212,8 @@ describe RuboCop::Cop::Style::ExtraSpacing, :config do
       File.umask 0000    # Ensure sensible umask.
     END
 
-    'aligning long assignment expressions that include line breaks' => <<-END.strip_indent
+    'aligning long assignment expressions that include line breaks' =>
+    <<-END.strip_indent
       size_attribute_name    = FactoryGirl.create(:attribute,
                                                   name:   'Size',
                                                   values: %w{small large})
