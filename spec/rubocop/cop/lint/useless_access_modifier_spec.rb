@@ -6,17 +6,17 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
 
   context 'when an access modifier has no effect' do
     let(:source) do
-      [
-        'class SomeClass',
-        '  def some_method',
-        '    puts 10',
-        '  end',
-        '  private',
-        '  def self.some_method',
-        '    puts 10',
-        '  end',
-        'end'
-      ]
+      <<-END.strip_indent
+        class SomeClass
+          def some_method
+            puts 10
+          end
+          private
+          def self.some_method
+            puts 10
+          end
+        end
+      END
     end
 
     it 'registers an offense' do
@@ -31,14 +31,14 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
 
   context 'when an access modifier has no methods' do
     let(:source) do
-      [
-        'class SomeClass',
-        '  def some_method',
-        '    puts 10',
-        '  end',
-        '  protected',
-        'end'
-      ]
+      <<-END.strip_indent
+        class SomeClass
+          def some_method
+            puts 10
+          end
+          protected
+        end
+      END
     end
 
     it 'registers an offense' do
@@ -53,18 +53,18 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
 
   context 'when an access modifier is followed by attr_*' do
     let(:source) do
-      [
-        'class SomeClass',
-        '  protected',
-        '  attr_accessor :some_property',
-        '  public',
-        '  attr_reader :another_one',
-        '  private',
-        '  attr :yet_again, true',
-        '  protected',
-        '  attr_writer :just_for_good_measure',
-        'end'
-      ]
+      <<-END.strip_indent
+        class SomeClass
+          protected
+          attr_accessor :some_property
+          public
+          attr_reader :another_one
+          private
+          attr :yet_again, true
+          protected
+          attr_writer :just_for_good_measure
+        end
+      END
     end
 
     it 'does not register an offense' do
@@ -76,13 +76,13 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
   context 'when an access modifier is followed by a ' \
     'class method defined on constant' do
     let(:source) do
-      [
-        'class SomeClass',
-        '  protected',
-        '  def SomeClass.some_method',
-        '  end',
-        'end'
-      ]
+      <<-END.strip_indent
+        class SomeClass
+          protected
+          def SomeClass.some_method
+          end
+        end
+      END
     end
 
     it 'registers an offense' do
@@ -97,18 +97,18 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
 
   context 'when there are consecutive access modifiers' do
     let(:source) do
-      [
-        'class SomeClass',
-        ' private',
-        ' private',
-        '  def some_method',
-        '    puts 10',
-        '  end',
-        '  def some_other_method',
-        '    puts 10',
-        '  end',
-        'end'
-      ]
+      <<-END.strip_indent
+        class SomeClass
+         private
+         private
+          def some_method
+            puts 10
+          end
+          def some_other_method
+            puts 10
+          end
+        end
+      END
     end
 
     it 'registers an offense' do
@@ -123,14 +123,14 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
 
   context 'when passing method as symbol' do
     let(:source) do
-      [
-        'class SomeClass',
-        '  def some_method',
-        '    puts 10',
-        '  end',
-        '  private :some_method',
-        'end'
-      ]
+      <<-END.strip_indent
+        class SomeClass
+          def some_method
+            puts 10
+          end
+          private :some_method
+        end
+      END
     end
 
     it 'does not register an offense' do
@@ -141,11 +141,11 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
 
   context 'when class is empty save modifier' do
     let(:source) do
-      [
-        'class SomeClass',
-        '  private',
-        'end'
-      ]
+      <<-END.strip_indent
+        class SomeClass
+          private
+        end
+      END
     end
 
     it 'registers an offense' do
@@ -160,13 +160,13 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
 
   context 'when multiple class definitions in file but only one has offense' do
     let(:source) do
-      [
-        'class SomeClass',
-        '  private',
-        'end',
-        'class SomeOtherClass',
-        'end'
-      ]
+      <<-END.strip_indent
+        class SomeClass
+          private
+        end
+        class SomeOtherClass
+        end
+      END
     end
 
     it 'registers an offense' do
@@ -182,13 +182,13 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
   if RUBY_ENGINE == 'ruby' && RUBY_VERSION.start_with?('2.1')
     context 'ruby 2.1 style modifiers' do
       let(:source) do
-        [
-          'class SomeClass',
-          '  private def some_method',
-          '    puts 10',
-          '  end',
-          'end'
-        ]
+        <<-END.strip_indent
+          class SomeClass
+            private def some_method
+              puts 10
+            end
+          end
+        END
       end
 
       it 'does not register an offense' do
@@ -219,14 +219,14 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
 
   context 'when a def is an argument to a method call' do
     let(:source) do
-      [
-        'class SomeClass',
-        '  private',
-        '  helper_method def some_method',
-        '    puts 10',
-        '  end',
-        'end'
-      ]
+      <<-END.strip_indent
+        class SomeClass
+          private
+          helper_method def some_method
+            puts 10
+          end
+        end
+      END
     end
 
     it 'does not register an offense' do
@@ -244,50 +244,54 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
       )
     end
     it 'is aware that this creates a new scope' do
-      src = ['class SomeClass',
-             '  concerning :FirstThing do',
-             '    def foo',
-             '    end',
-             '    private',
-             '',
-             '    def method',
-             '    end',
-             '  end',
-             '',
-             '  concerning :SecondThing do',
-             '    def omg',
-             '    end',
-             '    private',
-             '    def method',
-             '    end',
-             '  end',
-             ' end']
+      src = <<-END.strip_indent
+        class SomeClass
+          concerning :FirstThing do
+            def foo
+            end
+            private
+
+            def method
+            end
+          end
+
+          concerning :SecondThing do
+            def omg
+            end
+            private
+            def method
+            end
+          end
+         end
+      END
       inspect_source(cop, src)
       expect(cop.offenses).to be_empty
     end
 
     it 'still points out redundant uses within the block' do
-      src = ['class SomeClass',
-             '  concerning :FirstThing do',
-             '    def foo',
-             '    end',
-             '    private',
-             '',
-             '    def method',
-             '    end',
-             '  end',
-             '',
-             '  concerning :SecondThing do',
-             '    def omg',
-             '    end',
-             '    private',
-             '    def method',
-             '    end',
-             '    private',
-             '    def another_method',
-             '    end',
-             '  end',
-             ' end']
+      src = <<-END.strip_indent
+        class SomeClass
+          concerning :FirstThing do
+            def foo
+            end
+            private
+
+            def method
+            end
+          end
+
+          concerning :SecondThing do
+            def omg
+            end
+            private
+            def method
+            end
+            private
+            def another_method
+            end
+          end
+         end
+      END
       inspect_source(cop, src)
       expect(cop.offenses.size).to eq(1)
       expect(cop.offenses.first.line).to eq(17)
@@ -296,21 +300,23 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
 
   context 'when using ActiveSupport behavior when Rails is not eabled' do
     it 'reports offenses' do
-      src = ['module SomeModule',
-             '  extend ActiveSupport::Concern',
-             '  class_methods do',
-             '    def some_public_class_method',
-             '    end',
-             '    private',
-             '    def some_private_class_method',
-             '    end',
-             '  end',
-             '  def some_public_instance_method',
-             '  end',
-             '  private',
-             '  def some_private_instance_method',
-             '  end',
-             'end']
+      src = <<-END.strip_indent
+        module SomeModule
+          extend ActiveSupport::Concern
+          class_methods do
+            def some_public_class_method
+            end
+            private
+            def some_private_class_method
+            end
+          end
+          def some_public_instance_method
+          end
+          private
+          def some_private_instance_method
+          end
+        end
+      END
       inspect_source(cop, src)
       expect(cop.offenses.size).to eq(1)
     end
@@ -325,21 +331,23 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
       )
     end
     it 'is aware that this creates a new scope' do
-      src = ['module SomeModule',
-             '  extend ActiveSupport::Concern',
-             '  class_methods do',
-             '    def some_public_class_method',
-             '    end',
-             '    private',
-             '    def some_private_class_method',
-             '    end',
-             '  end',
-             '  def some_public_instance_method',
-             '  end',
-             '  private',
-             '  def some_private_instance_method',
-             '  end',
-             'end']
+      src = <<-END.strip_indent
+        module SomeModule
+          extend ActiveSupport::Concern
+          class_methods do
+            def some_public_class_method
+            end
+            private
+            def some_private_class_method
+            end
+          end
+          def some_public_instance_method
+          end
+          private
+          def some_private_instance_method
+          end
+        end
+      END
       inspect_source(cop, src)
       expect(cop.offenses).to be_empty
     end
@@ -354,21 +362,25 @@ describe RuboCop::Cop::Lint::UselessAccessModifier do
       )
     end
     it 'is aware that this creates a new method' do
-      src = ['class SomeClass',
-             '  private',
-             '  ',
-             '  delegate :foo, to: :bar',
-             'end']
+      src = <<-END.strip_indent
+        class SomeClass
+          private
+          
+          delegate :foo, to: :bar
+        end
+      END
       inspect_source(cop, src)
       expect(cop.offenses).to be_empty
     end
 
     it 'still points out redundant uses within the module' do
-      src = ['class SomeClass',
-             '  delegate :foo, to: :bar',
-             '  ',
-             '  private',
-             'end']
+      src = <<-END.strip_indent
+        class SomeClass
+          delegate :foo, to: :bar
+          
+          private
+        end
+      END
       inspect_source(cop, src)
       expect(cop.offenses.size).to eq(1)
       expect(cop.offenses.first.line).to eq(4)

@@ -29,13 +29,14 @@ describe RuboCop::Cop::Lint::ConditionPosition do
   end
 
   it 'registers an offense for elsif condition on the next line' do
-    inspect_source(cop,
-                   ['if something',
-                    '  test',
-                    'elsif',
-                    '  something',
-                    '  test',
-                    'end'])
+    inspect_source(cop, <<-END.strip_indent)
+      if something
+        test
+      elsif
+        something
+        test
+      end
+    END
     expect(cop.offenses.size).to eq(1)
   end
 

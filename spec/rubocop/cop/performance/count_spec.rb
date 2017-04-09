@@ -177,25 +177,31 @@ describe RuboCop::Cop::Performance::Count do
   end
 
   it 'allows usage of count on an interstitial method called on select' do
-    inspect_source(cop, ['Data = Struct.new(:value)',
-                         'array = [Data.new(2), Data.new(3), Data.new(2)]',
-                         'puts array.select(&:value).uniq.count'].join("\n"))
+    inspect_source(cop, <<-END.strip_indent)
+      Data = Struct.new(:value)
+      array = [Data.new(2), Data.new(3), Data.new(2)]
+      puts array.select(&:value).uniq.count
+    END
 
     expect(cop.messages).to be_empty
   end
 
   it 'allows usage of count on an interstitial method with blocks ' \
      'called on select' do
-    inspect_source(cop, ['Data = Struct.new(:value)',
-                         'array = [Data.new(2), Data.new(3), Data.new(2)]',
-                         'array.select(&:value).uniq { |v| v > 2 }.count'])
+    inspect_source(cop, <<-END.strip_indent)
+      Data = Struct.new(:value)
+      array = [Data.new(2), Data.new(3), Data.new(2)]
+      array.select(&:value).uniq { |v| v > 2 }.count
+    END
 
     expect(cop.messages).to be_empty
   end
 
   it 'allows usage of size called on an assigned variable' do
-    inspect_source(cop, ['nodes = [1]',
-                         'nodes.size'].join("\n"))
+    inspect_source(cop, <<-END.strip_indent)
+      nodes = [1]
+      nodes.size
+    END
 
     expect(cop.messages).to be_empty
   end
@@ -241,16 +247,20 @@ describe RuboCop::Cop::Performance::Count do
       end
 
       it 'select...size when select has parameters' do
-        source = ['Data = Struct.new(:value)',
-                  'array = [Data.new(2), Data.new(3), Data.new(2)]',
-                  'puts array.select(&:value).size'].join("\n")
+        source = <<-END.strip_indent
+          Data = Struct.new(:value)
+          array = [Data.new(2), Data.new(3), Data.new(2)]
+          puts array.select(&:value).size
+        END
 
         new_source = autocorrect_source(cop, source)
 
         expect(new_source)
-          .to eq(['Data = Struct.new(:value)',
-                  'array = [Data.new(2), Data.new(3), Data.new(2)]',
-                  'puts array.count(&:value)'].join("\n"))
+          .to eq(<<-END.strip_indent)
+            Data = Struct.new(:value)
+            array = [Data.new(2), Data.new(3), Data.new(2)]
+            puts array.count(&:value)
+          END
       end
     end
 
@@ -283,9 +293,11 @@ describe RuboCop::Cop::Performance::Count do
       end
 
       it 'reject...size when select has parameters' do
-        source = ['Data = Struct.new(:value)',
-                  'array = [Data.new(2), Data.new(3), Data.new(2)]',
-                  'puts array.reject(&:value).size'].join("\n")
+        source = <<-END.strip_indent
+          Data = Struct.new(:value)
+          array = [Data.new(2), Data.new(3), Data.new(2)]
+          puts array.reject(&:value).size
+        END
 
         new_source = autocorrect_source(cop, source)
 

@@ -89,12 +89,14 @@ module RuboCop
 
       context "when there's .rubocop.yml" do
         before do
-          create_file('.rubocop.yml', ['Cop1:',
-                                       '  Exclude:',
-                                       '    - Gemfile',
-                                       'Cop2:',
-                                       '  Exclude:',
-                                       '    - "**/*.blah"'])
+          create_file('.rubocop.yml', <<-END.strip_indent)
+            Cop1:
+              Exclude:
+                - Gemfile
+            Cop2:
+              Exclude:
+                - "**/*.blah"
+          END
 
         end
 
